@@ -1,0 +1,21 @@
+.container, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl {
+    max-width: 500px;
+}
+.contacts__popup {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 1;
+    display: none;
+}
+
+.contacts__popup li {
+    cursor: pointer;
+    padding: 5px;
+}
+
+.contacts__popup li:hover {
+    background-color: #f2f2f2;
+}
