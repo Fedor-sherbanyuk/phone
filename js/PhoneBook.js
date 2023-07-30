@@ -28,13 +28,11 @@ class PhoneBook {
     }
 
     removeContact(contactId) {
-        const index = this.#contacts.findIndex(contact => contact.id === contactId);
-        if (index !== -1) {
-            this.#contacts.splice(index, 1);
-            console.log(`Contact with ID ${contactId} removed.`);
-        } else {
-            console.log(`Contact with ID ${contactId} not found.`);
-        }
+        this.#contacts = this.#contacts.filter(contact => contact.id !== contactId);
+        console.log(`Contact with ID ${contactId} removed.`);
+
+        // Update the contact list on the page after removing the contact
+        this.updateContactList(this.#contacts);
     }
 
     search(searchTerm) {
@@ -46,40 +44,46 @@ class PhoneBook {
             );
         });
 
-        const updateContactList = (contacts) => {
-            const contactsList = document.querySelector('.contacts__list ul');
-            contactsList.innerHTML = '';
-
-            contacts.forEach(contact => {
-
-            });
-        };
-
-        updateContactList(this.#searchedUsers);
-
-        // После выполнения поиска, обновим список всплывающего окна
+        this.updateContactList(this.#searchedUsers);
         this.updatePopupList(this.#searchedUsers);
     }
 
-    updatePopupList(contacts) {
-        const popupList = document.querySelector('.contacts__popup ul');
-        popupList.innerHTML = '';
+    updateContactList(contacts) {
+        const contactsList = document.querySelector('.contacts__list ul');
+        contactsList.innerHTML = '';
 
         contacts.forEach(contact => {
             const listItem = document.createElement('li');
             listItem.textContent = `${contact.name} - ${contact.phone} - ${contact.email}`;
             listItem.className = 'list-group-item';
-            popupList.appendChild(listItem);
+
+            const callButton = document.createElement('button');
+            callButton.setAttribute('type', 'button');
+            callButton.className = 'btn btn-success';
+            callButton.innerHTML = '<i class="bi bi-telephone"></i>';
+            listItem.appendChild(callButton);
+
+            const removeButton = document.createElement('button');
+            removeButton.setAttribute('type', 'button');
+            removeButton.className = 'btn btn-danger';
+            removeButton.innerHTML = '<i class="bi bi-trash"></i>';
+            listItem.appendChild(removeButton);
+
+            contactsList.appendChild(listItem);
 
             // Adding a custom attribute to store the contact's ID
             listItem.setAttribute('data-contact-id', contact.id);
 
             // Adding click event listener to call the contact
-            listItem.addEventListener('click', event => {
-                const selectedContactId = event.target.getAttribute('data-contact-id');
-                const input = document.getElementById('contacts-search');
-                popupList.innerHTML=selectedContactId;
+            callButton.addEventListener('click', event => {
+                const selectedContactId = event.target.parentElement.getAttribute('data-contact-id');
                 this.call(Number(selectedContactId));
+            });
+
+            // Adding click event listener to remove the contact
+            removeButton.addEventListener('click', event => {
+                const selectedContactId = event.target.parentElement.getAttribute('data-contact-id');
+                this.removeContact(Number(selectedContactId));
             });
         });
 
@@ -107,7 +111,7 @@ class PhoneBook {
         const contactsList = document.querySelector('.contacts__list');
         contactsList.addEventListener('click', event => {
             const target = event.target;
-            const contactId = target.closest('[data-user-id]')?.dataset.userId;
+            const contactId = target.closest('[data-contact-id]')?.getAttribute('data-contact-id');
             if (!contactId) return;
 
             if (target.classList.contains('btn-success')) {
@@ -118,5 +122,6 @@ class PhoneBook {
         });
     }
 }
+
 
 const phoneBook = new PhoneBook(users);
